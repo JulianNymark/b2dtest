@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Game implements ApplicationListener{
 
 	public static final String TITLE = "b2dTest!!!!";
-	public static final int WIDTH = 640;
-	public static final int HEIGHT = 480;
+	public static final int WIDTH = 1600;
+	public static final int HEIGHT = 900;
 	
 	public static final float STEP = 1/60f;
 	
@@ -33,7 +33,6 @@ public class Game implements ApplicationListener{
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

@@ -2,15 +2,21 @@ package creatures;
 
 import static handlers.B2DVars.PPM;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
 public class Player extends Creature {
+
+	private ShapeRenderer sr;
 
 	public Player(World world, Vector2 pos){
 		
@@ -28,6 +34,8 @@ public class Player extends Creature {
 		this.dexterity = 1f;
 
 		this.body = createBody(world, pos);
+		
+		this.sr = new ShapeRenderer();
 	}
 	
 	private Body createBody(World world, Vector2 pos) {
@@ -46,6 +54,7 @@ public class Player extends Creature {
 		
 		Body b = world.createBody(bdef);
 		b.createFixture(fdef);
+		b.setUserData("player");
 		return b;
 	}
 
@@ -63,6 +72,17 @@ public class Player extends Creature {
 		body.applyForceToCenter(moveDir.cpy().nor().scl(accel_force), true);
 		body.setLinearDamping(friction_ground);
 		body.setAngularDamping(friction_ground);
+	}
+
+	public void draw(OrthographicCamera b2dCam) {
+		Vector2 pos = body.getPosition();
+
+		sr.setProjectionMatrix(b2dCam.combined);
+		sr.begin(ShapeType.Filled);
+		sr.identity();
+		sr.setColor(Color.GREEN);
+		sr.circle(pos.x,pos.y, size, 10);
+		sr.end();
 	}
 
 }
