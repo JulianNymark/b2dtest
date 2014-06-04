@@ -2,8 +2,10 @@ package creatures;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
 
 public abstract class Creature {
+	protected World world;
 	protected Body body;
 	protected Vector2 moveDir;
 	protected float accel_force;

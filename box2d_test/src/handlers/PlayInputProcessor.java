@@ -101,11 +101,11 @@ public class PlayInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-//		if (amount == 1) {
-//			tb.ZOOM_LEVEL += 0.05;
-//		} else {
-//			tb.ZOOM_LEVEL -= 0.05;
-//		}
+		if (amount == 1) {
+			play.ZOOM_LEVEL += 0.05;
+		} else {
+			play.ZOOM_LEVEL -= 0.05;
+		}
 		return false;
 	}
 }

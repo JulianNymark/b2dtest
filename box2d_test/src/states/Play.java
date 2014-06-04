@@ -31,13 +31,16 @@ public class Play extends GameState {
 	private World world;
 	private Box2DDebugRenderer b2dr;
 
+	// camera stuff
 	private OrthographicCamera b2dCam;
+	public float ZOOM_LEVEL = 1;
 
 	private Random r;
 
 	// creatures
 	private Player player;
 	private ArrayList<SimpleMob> mobs;
+	
 	private Map m;
 	private BitmapFont font;
 	private SpriteBatch batch;
@@ -55,14 +58,18 @@ public class Play extends GameState {
 		batch = new SpriteBatch();
 
 		// seed random
-		r = new Random(6l);
+		r = new Random(6l); // decent seeds: 6
+		
+		// create cam
+		b2dCam = new OrthographicCamera();
+		b2dCam.setToOrtho(false, Game.WIDTH / PPM, Game.HEIGHT / PPM);
 		
 		// generate map
 		m = new Map(world, r);
 		m.genTiles();
 
 		// create player
-		player = new Player(world, new Vector2(0, 0));
+		player = new Player(world, b2dCam,new Vector2(0, 0));
 
 		// create some mobs
 		mobs = new ArrayList<SimpleMob>();
@@ -72,10 +79,6 @@ public class Play extends GameState {
 			mobs.add(mob);
 		}
 
-		// create cam
-		b2dCam = new OrthographicCamera();
-		b2dCam.setToOrtho(false, Game.WIDTH / PPM, Game.HEIGHT / PPM);
-		
 		// input processor
 		PlayInputProcessor inputProcessor = new PlayInputProcessor(this);
 		Gdx.input.setInputProcessor(inputProcessor);
@@ -84,10 +87,10 @@ public class Play extends GameState {
 
 	@Override
 	public void update(float dt) {
-		// player movement
+		// player (physics, vision... stuff)
 		player.update();
 		
-		// update mobs
+		// update mobs (physics, AI... stuff)
 		for (Creature m : mobs){
 			m.update();
 		}
@@ -97,21 +100,22 @@ public class Play extends GameState {
 	@Override
 	public void render() {
 		// clear screen
-		Gdx.gl.glClearColor(.2f, .2f, .2f, 1);
+		Gdx.gl.glClearColor(.4f, .4f, .4f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		// camera position
+		// camera size and position
 		Vector2 mouse = new Vector2(Gdx.input.getX() / PPM, Gdx.input.getY() / PPM);
 		mouse.y = Game.HEIGHT / PPM - mouse.y;
 		Vector2 center = new Vector2(Game.WIDTH / PPM / 2, Game.HEIGHT / PPM / 2);
 		Vector2 mouseOffsetCenter = mouse.cpy();
 		mouseOffsetCenter.sub(center.cpy());
+		b2dCam.setToOrtho(false, Game.WIDTH / PPM * ZOOM_LEVEL, Game.HEIGHT / PPM * ZOOM_LEVEL); // zoom level
 		b2dCam.position.set(player.getPosition().add(mouseOffsetCenter.scl(Settings.MOUSE_VIEW_STICKINESS)), 1);
 		b2dCam.update();
 
 		// draw player
-		player.draw(b2dCam);
-		
+		player.draw();
+				
 		// draw map
 		m.draw(b2dCam);
 		
