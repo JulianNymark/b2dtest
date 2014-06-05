@@ -1,16 +1,17 @@
 package creatures;
 
 import static handlers.B2DVars.PPM;
+import interfaces.IVisible;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -20,13 +21,18 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 
-public class Player extends Creature {
+import data_containers.VisionData;
 
+public class Player extends Creature implements IVisible {
 	private static final float VISION_DISTANCE = 100 / PPM;
+	private static final int RAY_COUNT = 1;
+
 	private ShapeRenderer sr;
 	private OrthographicCamera b2dCam;
+
 	private RayCastCallback callback;
-	private ArrayList<Vector2> vision_rays;
+	private HashMap<Integer, VisionData> vision_rays;
+	private int current_i;
 
 	public Player(World world, OrthographicCamera b2dCam, Vector2 pos) {
 
@@ -54,12 +60,19 @@ public class Player extends Creature {
 			@Override
 			public float reportRayFixture(Fixture fixture, Vector2 point,
 					Vector2 normal, float fraction) {
-				vision_rays.add(point);
-				return 0;
+				if (!vision_rays.containsKey(current_i)) {
+					vision_rays.put(current_i, new VisionData(point.cpy(),
+							fixture));
+				} else if (vision_rays.get(current_i).point.dst(getPosition()) > point
+						.dst(getPosition())) {
+					vision_rays.put(current_i, new VisionData(point.cpy(),
+							fixture));
+				}
+				return 1;
 			}
 		};
 
-		this.vision_rays = new ArrayList<Vector2>();
+		this.vision_rays = new HashMap<Integer, VisionData>();
 	}
 
 	private Body createBody(Vector2 pos) {
@@ -78,7 +91,7 @@ public class Player extends Creature {
 
 		Body b = this.world.createBody(bdef);
 		b.createFixture(fdef);
-		b.setUserData("player");
+		b.setUserData(this);
 		return b;
 	}
 
@@ -102,33 +115,74 @@ public class Player extends Creature {
 	}
 
 	private void cast_rays() {
-		Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-		Vector3 mouse_world = b2dCam.unproject(new Vector3(mouse, 0));
-		world.rayCast(callback, getPosition(), new Vector2(mouse_world.x,
-				mouse_world.y));
+		// Vector2 mouse = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+		// Vector3 mouse_world = b2dCam.unproject(new Vector3(mouse, 0));
+		// world.rayCast(callback, getPosition(), new Vector2(mouse_world.x,
+		// mouse_world.y));
+		double rot_step = (Math.PI * 2) / RAY_COUNT;
+		for (int i = 0; i < RAY_COUNT; ++i) {
+			double rot_amount = rot_step * i;
+			Vector2 v = new Vector2(0, 1).scl(VISION_DISTANCE);
+			v.rotateRad((float) rot_amount);
+			v.add(getPosition());
+
+			current_i = i;
+			world.rayCast(callback, getPosition(), v);
+		}
+
+		// set visibility of visible things that are struck
+		for (int i = 0; i < RAY_COUNT; ++i){
+			if (vision_rays.containsKey(i)){
+				Fixture f = vision_rays.get(i).fixture;
+				IVisible v = (IVisible) f.getUserData();
+				v.setVisible(true);
+			}
+		}
+
 	}
 
 	public void draw() {
 		Vector2 pos = body.getPosition();
 		sr.setProjectionMatrix(this.b2dCam.combined);
-		
+
 		// draw vision
+		Gdx.gl20.glEnable(GL20.GL_BLEND);
+		Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		sr.begin(ShapeType.Line);
 		sr.identity();
-		sr.setColor(Color.WHITE);
-		for (Vector2 v : vision_rays){
-			//Vector3 v_cam = b2dCam.project(new Vector3(v.x, v.y, 0));
-			sr.line(pos, v);
+		sr.setColor(1, 1, 1, 0.1f);
+		Gdx.gl20.glLineWidth(10); // TODO it's like, capped at 5 pixels... D:
+		for (Integer i : vision_rays.keySet()) {
+			sr.line(pos, vision_rays.get(i).point);
 		}
-		vision_rays.clear();
+
+		double rot_step = (Math.PI * 2) / RAY_COUNT;
+		for (int i = 0; i < RAY_COUNT; ++i) {
+			if (!vision_rays.containsKey(i)) {
+				double rot_amount = rot_step * i;
+				Vector2 v = new Vector2(0, 1).scl(VISION_DISTANCE);
+				v.rotateRad((float) rot_amount);
+				v.add(getPosition());
+				sr.line(pos, v);
+			}
+		}
 		sr.end();
 		
+		vision_rays.clear();
+		
+		Gdx.gl20.glLineWidth(1);
+
 		// draw player
 		sr.begin(ShapeType.Filled);
 		sr.identity();
 		sr.setColor(Color.GREEN);
 		sr.circle(pos.x, pos.y, size, 10);
 		sr.end();
+	}
+
+	@Override
+	public void setVisible(boolean v) {
+		this.visible = v;
 	}
 
 }

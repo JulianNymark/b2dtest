@@ -15,6 +15,8 @@ public abstract class Creature {
 	protected float restitution;
 	protected float size;
 	
+	protected boolean visible;
+	
 	// stats
 	protected float strength;
 	protected float intelligence;

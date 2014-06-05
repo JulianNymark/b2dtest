@@ -1,6 +1,7 @@
 package creatures;
 
 import static handlers.B2DVars.PPM;
+import interfaces.IVisible;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,7 +15,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
-public class SimpleMob extends Creature {
+public class SimpleMob extends Creature implements IVisible {
 
 	private ShapeRenderer sr;
 
@@ -24,7 +25,9 @@ public class SimpleMob extends Creature {
 		this.friction = 1f; // 0 -> 1
 		this.restitution = 0.6f; // 'bounciness' 0 -> 1+
 		this.accel_force = 1; // depends on density
-		this.friction_ground = 1f; // 0 -> 1 
+		this.friction_ground = 1f; // 0 -> 1
+		
+		this.visible = false;
 
 		this.moveDir = new Vector2(0, 0);
 		
@@ -53,7 +56,7 @@ public class SimpleMob extends Creature {
 		
 		Body b = world.createBody(bdef);
 		b.createFixture(fdef);
-		b.setUserData("simplemob");
+		b.setUserData(this);
 		return b;
 	}
 	
@@ -63,14 +66,23 @@ public class SimpleMob extends Creature {
 	}
 
 	public void draw(OrthographicCamera b2dCam) {
-		Vector2 pos = body.getPosition();
+		if (visible) {
+			Vector2 pos = body.getPosition();
 
-		sr.setProjectionMatrix(b2dCam.combined);
-		sr.begin(ShapeType.Filled);
-		sr.identity();
-		sr.setColor(Color.RED);
-		sr.circle(pos.x,pos.y, size, 10);
-		sr.end();
+			sr.setProjectionMatrix(b2dCam.combined);
+			sr.begin(ShapeType.Filled);
+			sr.identity();
+			sr.setColor(Color.RED);
+			sr.circle(pos.x, pos.y, size, 10);
+			sr.end();
+			
+			visible = false;
+		}
+	}
+
+	@Override
+	public void setVisible(boolean v) {
+		this.visible = v;
 	}
 
 }

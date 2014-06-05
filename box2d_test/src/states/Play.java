@@ -100,7 +100,8 @@ public class Play extends GameState {
 	@Override
 	public void render() {
 		// clear screen
-		Gdx.gl.glClearColor(.4f, .4f, .4f, 1f);
+//		Gdx.gl.glClearColor(.4f, .4f, .4f, 1f);
+		Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		// camera size and position
@@ -126,7 +127,7 @@ public class Play extends GameState {
 		drawFps();
 		
 		// draw box2d world (debugrenderer)
-//		b2dr.render(world, b2dCam.combined);
+		b2dr.render(world, b2dCam.combined);
 	}
 
 	private void drawFps() {
