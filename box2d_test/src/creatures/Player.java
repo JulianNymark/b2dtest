@@ -24,8 +24,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import data_containers.VisionData;
 
 public class Player extends Creature implements IVisible {
-	private static final float VISION_DISTANCE = 100 / PPM;
-	private static final int RAY_COUNT = 1;
+	private static final float VISION_DISTANCE = 2000 / PPM;
+	private static final int RAY_COUNT = 1500;
 
 	private ShapeRenderer sr;
 	private OrthographicCamera b2dCam;
@@ -38,10 +38,10 @@ public class Player extends Creature implements IVisible {
 
 		this.size = 8f / PPM; // radius of circle
 		this.density = 4f; // kilograms?
-		this.friction = 1f; // 0 -> 1
-		this.restitution = 0.6f; // 'bounciness' 0 -> 1+
-		this.accel_force = 1; // depends on density
-		this.friction_ground = 5f; // 0 -> 1
+		this.friction = 0.3f; // 0 -> 1
+		this.restitution = 0.3f; // 'bounciness' 0 -> 1+
+		this.accel_force = 1.2f; // depends on density
+		this.friction_ground = 3f;
 
 		this.moveDir = new Vector2(0, 0);
 
@@ -134,7 +134,7 @@ public class Player extends Creature implements IVisible {
 		for (int i = 0; i < RAY_COUNT; ++i){
 			if (vision_rays.containsKey(i)){
 				Fixture f = vision_rays.get(i).fixture;
-				IVisible v = (IVisible) f.getUserData();
+				IVisible v = (IVisible) f.getBody().getUserData();
 				v.setVisible(true);
 			}
 		}

@@ -45,7 +45,7 @@ public class Tile implements IVisible {
 			sr.identity();
 
 			Vector2 pos = b.getPosition();
-			sr.setColor(Color.BLACK);
+			sr.setColor(0.3f, 0.3f, 0.3f, 1);
 			sr.rect(pos.x - TILESIZE / 2, pos.y - TILESIZE / 2, TILESIZE,
 					TILESIZE);
 

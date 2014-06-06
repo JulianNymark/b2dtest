@@ -127,7 +127,7 @@ public class Play extends GameState {
 		drawFps();
 		
 		// draw box2d world (debugrenderer)
-		b2dr.render(world, b2dCam.combined);
+		//b2dr.render(world, b2dCam.combined);
 	}
 
 	private void drawFps() {
