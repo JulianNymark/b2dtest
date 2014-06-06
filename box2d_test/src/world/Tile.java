@@ -3,21 +3,20 @@ package world;
 import static handlers.B2DVars.PPM;
 import interfaces.IVisible;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
 public class Tile implements IVisible {
 	public static final float TILESIZE = 200 / PPM;
-	
+
 	public Body b;
 	private boolean visible;
 	// TODO texture / image file?
@@ -26,9 +25,9 @@ public class Tile implements IVisible {
 
 	private World world;
 	
-	public Tile(World world, Vector2 vector2) {
+	public Tile(World world, Vector2 vector2, ShapeRenderer sr) {
 		this.visible = false;
-		this.sr = new ShapeRenderer();
+		this.sr = sr;
 		this.world = world;
 		this.b = createBody(world, vector2);
 	}
